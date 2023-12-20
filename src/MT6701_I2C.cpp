@@ -1,43 +1,44 @@
-/* 
- * Класс для Arduino IDE реализующий множество методов
- * взаимодействия с бесконтактным датчиком положения
- * MT6701 от компании MagnTek http://www.magntek.com.cn/en/index.htm
- * 
- * Документация к датчику:
- ** http://www.magntek.com.cn/en/list/177/559.htm
- ** http://www.magntek.com.cn/upload/MT6701_Rev.1.5.pdf
- * 
- * Контакты:
- ** GitHub - https://github.com/S-LABc
- ** Gmail - romansklyar15@gmail.com
- * 
- * Copyright (C) 2022. v1.2 / License MIT / Скляр Роман S-LAB
- */
+/*
+ * Class for Arduino IDE implementing many methods for  interaction with
+ * Hall effect based rotational position sensor MT6701 from MagnTek
+ * (http://www.magntek.com.cn/en/index.htm)
+ *
+ * Documentation for the sensor:
+ *  http://www.magntek.com.cn/en/list/177/559.htm
+ *  http://www.magntek.com.cn/upload/MT6701_Rev.1.8.pdf
+ *
+ * Contacts:
+ *  GitHub - https://github.com/S-LABc
+ *  Gmail - romansklyar15@gmail.com
+ *
+ * Copyright (C) 2022. v1.2 / License MIT / Sklyar Roman S-LAB
+*/
 
 #include "MT6701_I2C.h"
 
 // ########## CONSTRUCTOR ##########
 /*
- * @brief: использовать только интерфейс I2C
- * @param _twi: доступ к методам объекта Wire
+ * @brief: assign the I2C interface to use (default &Wire)
+ * @param _twi: Wire object to be used
  */
 MT6701I2C::MT6701I2C(TwoWire* _twi) : _wire_(_twi ? _twi : &Wire) {
-  // Ничего
+  // Nothing more to be done 
 }
+
 /* 
- * @brief: запросить один байт данных из буфера
- * @param _reg_addr: 1 байт адреса регистра
- * @return: значение байта из регистра, который был запрошен
- * @note: использовать для одиночного регистра, например 0x29
+ * @brief: request one byte of data from the buffer
+ * @param _reg_addr: 1 byte register address
+ * @return: the byte value from the register that was requested
+ * @note: use for a single register, such as 0x29
  */
 uint8_t MT6701I2C::MT_RequestSingleRegister(uint8_t _reg_addr) {
   uint8_t single_byte = 0;
 
-  // Начать передачу по адресу
+  // Start transfer to address
   _wire_->beginTransmission(MT6701_I2C_ADDRESS);
-  // Отправить байт регистра
+  // Send register address byte
   _wire_->write(_reg_addr);
-  // Завершить соединение
+  // End connection
   _wire_->endTransmission();
   
   // Запросить байт данных по адресу
@@ -46,39 +47,42 @@ uint8_t MT6701I2C::MT_RequestSingleRegister(uint8_t _reg_addr) {
   if (_wire_->available() >= 1 ) {
     single_byte = _wire_->read();
   }
-  // Завершить соединение
+  // End connection
   _wire_->endTransmission();
 
   return single_byte;
 }
+
 /*
- * @brief: записать значение размером 1 байт в произвольный регистр размером 1 байт
- * @param _reg_addr: 1 байт адреса регистра
- * @param _payload: 1 байт полезных данных
+ * @brief: write a 1-byte value to a 1-byte arbitrary register
+ * @param _reg_addr: 1 byte register address
+ * @param _payload: 1 byte payload
  */
 void MT6701I2C::MT_WriteOneByte(uint8_t _reg_addr, uint8_t _payload) {
-  // Начать передачу по адресу для прередачи байта данных в регистр
+  // Start transfer to address для прередачи байта данных в регистр
   _wire_->beginTransmission(MT6701_I2C_ADDRESS);
   _wire_->write(_reg_addr);
   _wire_->write(_payload);
-  // Завершить соединение
+  // End connection
   _wire_->endTransmission();
 }
 
 // ########## PUBLIC ##########
 /* 
- * @brief: вызов метода Wire.begin()
- * @note: использовать, если действие не было выполнено ранее
+ * @brief: call Wire.begin() method
+ * @note: use if action has not been performed before
  */
 void MT6701I2C::begin(void) {
   _wire_->begin();
 }
+
 /* 
- * @brief: вызов метода Wire.begin(SDA, SCL) с указанием выводов
- * @param _sda_pin: пользовательский контакт SDA
- * @param _scl_pin: пользовательский контакт SCL
- * @note: использовать, если действие не было выполнено ранее.
- *   Применимо для платформ на базе ESP8266 и ESP32
+ * @brief: call the Wire.begin(SDA, SCL) method specifying the pins
+ * @param_sda_pin: SDA user pin
+ * @param_scl_pin: custom SCL pin
+ * @note: Use if the action has not been performed previously.
+ * Applicable for ESP8266, ESP32 and STM32 based platforms which might
+ * have several I2C controllers
  */
 #if defined(ESP8266) || defined(ESP32)
 void MT6701I2C::begin(int8_t _sda_pin, int8_t _scl_pin) {
@@ -93,78 +97,86 @@ void MT6701I2C::begin(int8_t _sda_pin, int8_t _scl_pin) {
   _wire_->begin();
 }
 #endif
+
 /* 
- * @brief: настройка произвольной частоты шины I2C (по умолчанию 400кГц)
- * @note: использовать, если частота шины меняется из-за разных устройств
+ * @brief: setting a custom I2C bus frequency (default 400kHz)
+ * @note: use if the bus frequency changes due to different devices
  */
 void MT6701I2C::setClock(uint32_t _clock) {
   _wire_->setClock(_clock);
 }
+
 /*
- * @brief: сохраняет данные в EEPROM памяти датчика
- * @note: назначение каждой команды не описано в документации, порядок команд описан в 7.2 EEPROM Programming
- *  рекомендуется выполнять эту операцию при напряжении питания от 4.5В до 5.5В
+ * @brief: saves data to sensor EEPROM memory
+ * @note: the purpose of each command is not described in the documentation, the order of the commands is described in 7.2 EEPROM Programming
+ * For programming the EEPROM a supply voltage of 4.5V to 5.5V is needed
  */
 void MT6701I2C::saveNewValues(void) {
-  // Начать передачу по адресу
+  // Start transfer to address
   _wire_->beginTransmission(MT6701_I2C_ADDRESS);
-  // Отправить 0x09
+  // Send 0x09
   _wire_->write(MT6701_I2C_EEPROM_PROG_KEY_REG);
-  // Отправить 0xB3
+  // Send 0xB3
   _wire_->write(MT6701_I2C_EEPROM_PROG_KEY_VALUE);
-  // Завершить соединение
+  // End connection
   _wire_->endTransmission();
   
-  // Начать передачу по адресу
+  // Start transfer to address
   _wire_->beginTransmission(MT6701_I2C_ADDRESS);
-  // Отправить 0x0A
+  // Send 0x0A
   _wire_->write(MT6701_I2C_EEPROM_PROG_CMD_REG);
-  // Отправить 0x05
+  // Send 0x05
   _wire_->write(MT6701_I2C_EEPROM_PROG_CMD_VALUE);
-  // Завершить соединение
+  // End connection
   _wire_->endTransmission();
 }
+
 /*
- * @brief: узнать подкючен ли датчик к линии I2C
- * @note: используется алгоритм стандартного поиска устройств на шина I2C
+ * @brief: find out if the sensor is connected to the I2C line
+ * @note: the standard search algorithm for devices on the I2C bus is used
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не подключен
- *  MT6701I2C_DEFAULT_REPORT_OK - подключен
+ * MT6701I2C_DEFAULT_REPORT_ERROR - not connected
+ * MT6701I2C_DEFAULT_REPORT_OK - connected
  */
 bool MT6701I2C::isConnected(void) {
-  // Начать передачу по адресу
+  // Start transfer to address
   _wire_->beginTransmission(MT6701_I2C_ADDRESS);
   return (!_wire_->endTransmission(MT6701_I2C_ADDRESS)) ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /*
- * @brief: назначить контакт микроконтроллера для управления режимом интерфейса
- * @param _pin_mode: контакт микроконтроллера к которому подключен контакт MODE датчика
+ * @brief: assign microcontroller pin to control interface mode
+ * @param_pin_mode: pin of the microcontroller to which the MODE pin of the sensor is connected
  */
 void MT6701I2C::attachModePin(byte _pin_mode) {
   _pin_mode_ = _pin_mode;
   pinMode(_pin_mode_, OUTPUT);
 }
+
 /*
- * @brief: освоободить назначенный контакт микроконтроллера для управления режимом интерфейса
+ * @brief: release the assigned microcontroller pin to control the interface mod
  */
 void MT6701I2C::detachModePin(void) {
   pinMode(_pin_mode_, INPUT);
   _pin_mode_ = -1;
 }
+
 /* 
- * @brief: включить интерфейс I2C/SSI
+ * @brief: enable interface I2C/SSI
  */
 void MT6701I2C::enableI2CorSSI(void) {
   digitalWrite(_pin_mode_, MT6701I2C_MODE_I2C_SSI);
 }
+
 /* 
- * @brief: включить интерфейс UVW/ABZ
+ * @brief: enable interface UVW/ABZ
  */
 void MT6701I2C::enableUVWorABZ(void) {
   digitalWrite(_pin_mode_, MT6701I2C_MODE_UVW_ABZ);
 }
+
 /* 
- * @brief: получить чистое значение угла из Angle Data Register(13:0)
+ * @brief: get raw angle value from Angle Data Register(13:0)
  * @return:
  *  0 - 16383
  */
@@ -174,24 +186,26 @@ word MT6701I2C::getRawAngle(void) {
   return (word)(high_byte << 6) | (low_byte >> 2);
 }
 /* 
- * @brief: получить значение угла в градусах
+ * @brief: get the angle value in degrees
  * @return:
  *  0.00 - 359.98
  */
 float MT6701I2C::getDegreesAngle(void) {
   return ((float)getRawAngle() * 360) / 16384;
+
 }
 /* 
- * @brief: получить значение угла в радианах
+ * @brief: get the angle value in radians
  * @return:
- *  0.00 - 6.28319
+ *  0.00 - 6.28319 (0 - 2pi)
  */
 float MT6701I2C::getRadiansAngle(void) {
   return (getDegreesAngle() * M_PI) / 180;
 }
+
 /* 
- * @brief: получить тип конфигурации выходного интерфейса
- * @note: только для корпуса QFN
+ * @brief: get output interface type configuration
+ * @note: QFN package only
  * @return:
  *  MT6701I2_OUTPUT_TYPE_A_B_Z
  *  MT6701I2_OUTPUT_TYPE_UVW
@@ -199,15 +213,17 @@ float MT6701I2C::getRadiansAngle(void) {
 MT6701I2CConfigurationOutputType MT6701I2C::getConfigurationOutputType(void) {
   return (MT6701I2CConfigurationOutputType)((MT_RequestSingleRegister(MT6701_I2C_EEPROM_UVW_MUX_REG) >> MT6701_I2C_EEPROM_UVW_MUX_BIT) & 0x01);
 }
+
 /* 
- * @brief: установить тип конфигурации выходного интерфейса -A-B-Z
- * @note: только для корпуса QFN
+ * @brief: set output interface type
+ * @note: QFN package only
  */
 void MT6701I2C::setConfigurationOutputTypeABZ(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_UVW_MUX_REG);
   bkup &= ~(1 << MT6701_I2C_EEPROM_UVW_MUX_BIT);
   MT_WriteOneByte(MT6701_I2C_EEPROM_UVW_MUX_REG, bkup);
 }
+
 /* 
  * @brief: установить тип конфигурации выходного интерфейса -A-B-Z с проверкой
  * @note: только для корпуса QFN
