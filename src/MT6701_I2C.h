@@ -1,40 +1,40 @@
-/* 
- * Класс для Arduino IDE реализующий множество методов
- * взаимодействия с бесконтактным датчиком положения
- * MT6701 от компании MagnTek http://www.magntek.com.cn/en/index.htm
- * 
- * Документация к датчику:
- ** http://www.magntek.com.cn/en/list/177/559.htm
- ** http://www.magntek.com.cn/upload/MT6701_Rev.1.5.pdf
- * 
- * Контакты:
- ** GitHub - https://github.com/S-LABc
- ** Gmail - romansklyar15@gmail.com
- * 
- * Copyright (C) 2022. v1.2 / License MIT / Скляр Роман S-LAB
- */
+/*
+ * Class for Arduino IDE implementing many methods for  interaction with
+ * Hall effect based rotational position sensor MT6701 from MagnTek
+ * (http://www.magntek.com.cn/en/index.htm)
+ *
+ * Documentation for the sensor:
+ *  http://www.magntek.com.cn/en/list/177/559.htm
+ *  http://www.magntek.com.cn/upload/MT6701_Rev.1.8.pdf
+ *
+ * Contacts:
+ *  GitHub - https://github.com/S-LABc
+ *  Gmail - romansklyar15@gmail.com
+ *
+ * Copyright (C) 2022. v1.2 / License MIT / Sklyar Roman S-LAB
+*/
 
 #pragma once
 #include "Arduino.h"
 #include "Wire.h"
 
-/*=== Настройки шины I2C датчика ===*/
+/*=== Sensor I2C bus settings ===*/
 const uint32_t MT6701_I2C_CLOCK_100KHZ = 100000;
 const uint32_t MT6701_I2C_CLOCK_400KHZ = 400000;
 const uint32_t MT6701_I2C_CLOCK_1MHZ   = 1000000;
 const uint8_t MT6701_I2C_ADDRESS = 0x06;
 
-/*=== Выводы MODE на разных платах (зависит от ядра) ===*/
+/*=== MODE pins on different boards (depending on the core) ===*/
 #define STM32_MT6701_MODE_PIN   PC13
 #define ESP8266_MT6701_MODE_PIN 2
 #define ESP32_MT6701_MODE_PIN   4
 #define ARDUINO_MT6701_MODE_PIN 3
 
-/*=== Адреса регистров датчика ===*/
+/*=== Sensor register addresses ===*/
 // Angle Data Register
 const uint8_t MT6701_I2C_ANGLE_DATA_REG_H = 0x03;
 const uint8_t MT6701_I2C_ANGLE_DATA_REG_L = 0x04;
-// UVW_MUX только для корпуса QFN
+// UVW_MUX (on QFN package only)
 const uint8_t MT6701_I2C_EEPROM_UVW_MUX_REG = 0x25;
 const uint8_t MT6701_I2C_EEPROM_UVW_MUX_BIT = 7;
 // ABZ_MUX
@@ -81,23 +81,23 @@ const uint8_t MT6701_I2C_EEPROM_PROG_KEY_VALUE = 0xB3;
 const uint8_t MT6701_I2C_EEPROM_PROG_CMD_REG   = 0x0A;
 const uint8_t MT6701_I2C_EEPROM_PROG_CMD_VALUE = 0x05;
 
-/*=== Вспомогательные значения ===*/
-// Тип конфигурации выходного интерфейса (только для корпуса QFN)
+/*=== Auxiliary values ===*/
+// Output type configuration (QFN package only)
 enum MT6701I2CConfigurationOutputType {
   MT6701I2_CONFIG_OUTPUT_TYPE_UVW,
   MT6701I2_CONFIG_OUTPUT_TYPE_A_B_Z,
 };
-// Тип выходного интерфейса
+// Output interface type
 enum MT6701I2COutputType {
   MT6701I2_OUTPUT_TYPE_ABZ,
   MT6701I2_OUTPUT_TYPE_UVW,
 };
-// Положительное направление вращения
+// Positive direction of rotation
 enum MT6701I2CDirection {
-  MT6701I2_DIRECTION_COUNTERCLOCKWISE, // Против часовй стрелки
-  MT6701I2_DIRECTION_CLOCKWISE, // По часовой стрелке
+  MT6701I2_DIRECTION_COUNTERCLOCKWISE, // Counterclockwise
+  MT6701I2_DIRECTION_CLOCKWISE, // Clockwise
 };
-// Ширина импульса Z
+// Pulse width Z
 enum MT6701I2CZPulseWidth {
   MT6701I2_Z_PULSE_WIDTH_1LSB,
   MT6701I2_Z_PULSE_WIDTH_2LSB,
@@ -108,123 +108,123 @@ enum MT6701I2CZPulseWidth {
   MT6701I2_Z_PULSE_WIDTH_180DEG,
   MT6701I2_Z_PULSE_WIDTH_1LSB_2,
 };
-// Частота ШИМ
+// PWM frequency
 enum MT6701I2CFrequencyPWM {
   MT6701I2_PWM_FREQUENCY_9944,
   MT6701I2_PWM_FREQUENCY_4972,
 };
-// Полярность ШИМ
+// PWM polarity
 enum MT6701I2CPolarityPWM {
   MT6701I2_PWM_POLARITY_HIGH,
   MT6701I2_PWM_POLARITY_LOW,
 };
-// Режим выхода
+// Output mode
 enum MT6701I2COutputMode {
   MT6701I2_OUTPUT_MODE_ANALOG,
   MT6701I2_OUTPUT_MODE_PWM,
 };
-// Ответы стандартного вида успех/ошибка
+// Standard success/error return values
 const uint8_t MT6701I2C_DEFAULT_REPORT_ERROR = 0;
 const uint8_t MT6701I2C_DEFAULT_REPORT_OK    = 1;
-// Выбор интерфейсов датчика
+// Sensor interface selector values
 const uint8_t MT6701I2C_MODE_I2C_SSI = 0;
 const uint8_t MT6701I2C_MODE_UVW_ABZ = 1;
 
 
 class MT6701I2C {
   private:
-    TwoWire* _wire_; // Объект для использования методов I2C
-    int8_t _pin_mode_ = -1; // Контакт микроконтроллера к которому подключен вывод MODE датчика
+    TwoWire* _wire_; // I2C TwoWire object
+    int8_t _pin_mode_ = -1; // GPIO pin of the microcontroller to which the MODE pin of the sensor is connected
 
   protected:
-    uint8_t MT_RequestSingleRegister(uint8_t _reg_addr); // Запрос значения регистра размером 1 байт
-    void MT_WriteOneByte(uint8_t _reg_addr, uint8_t _payload); // Запись одного байта в однобайтовый регистр
+    uint8_t MT_RequestSingleRegister(uint8_t _reg_addr); // Request one byte register value
+    void MT_WriteOneByte(uint8_t _reg_addr, uint8_t _payload); // Write one byte to a register
 
   public:
-    MT6701I2C(TwoWire* _twi); // Конструктор с использованием только интерфейса I2C
+    MT6701I2C(TwoWire* _twi); // Constructor using only I2C interface
 
-    void begin(void); // Вызов Wire.begin()
+    void begin(void); // Calls Wire.begin()
 #if defined(ESP8266) || defined(ESP32) || defined(ARDUINO_ARCH_STM32)
-    void begin(int8_t _sda_pin, int8_t _scl_pin); // Вызов Wire.begin(SDA, SCL) с указанием выводов
+    void begin(int8_t _sda_pin, int8_t _scl_pin); // Calla Wire.begin(SDA, SCL) specifying pins used for I2C
 #endif
-    void setClock(uint32_t _clock = MT6701_I2C_CLOCK_400KHZ); // Настройка частоты на 100кГц, 400кГц, 1МГц, или пользовательское значение (по умолчанию 400кГц)
+    void setClock(uint32_t _clock = MT6701_I2C_CLOCK_400KHZ); // I2C frequency setting. Possible values: 100kHz, 400kHz, 1MHz, or custom value (default 400kHz)
 
-    void saveNewValues(void); // Метод производителя для сохранения значений в памяти EEPROM. Рекомендуется выполнять при напряжение питания от 4.5В до 5.5В
+    void saveNewValues(void); // Manufacturer's method for storing values in EEPROM memory. EEPROM programming requires a supply voltage of 4.5V to 5.5V
 
-    bool isConnected(void); // Проверка по стандартному алгоритму поиска устройств на линии I2C
+    bool isConnected(void); // Checks for the device on the I2C bus using a standard algorithm
 
-    void attachModePin(byte _pin_mode); // Назначить контакт микроконтроллера для управления режимом интерфейса
-    void detachModePin(void); // Освоободить назначенный контакт микроконтроллера для управления режимом интерфейса
+    void attachModePin(byte _pin_mode); // Assign a microcontroller pin to control the interface mode
+    void detachModePin(void); // Release the assigned microcontroller pin controlling the interface mode
 
-    void enableI2CorSSI(void); // Включить интерфейс I2C/SSI. MT6701I2C_MODE_I2C_SSI
-    void enableUVWorABZ(void); // Включить интерфейс UVW/ABZ. MT6701I2C_MODE_UVW_ABZ
+    void enableI2CorSSI(void); // Enable interface I2C/SSI. MT6701I2C_MODE_I2C_SSI
+    void enableUVWorABZ(void); //  Enable interface UVW/ABZ. MT6701I2C_MODE_UVW_ABZ
 
-    word getRawAngle(void); // Получить угол в чистом виде. 0 - 16383
-    float getDegreesAngle(void); // Получить угол в градусах. 0.00 - 359.98
-    float getRadiansAngle(void); // Получить угол в радианах. 0.00 - 6.28 
+    word getRawAngle(void); // Get raw angle value. 0 - 16383
+    float getDegreesAngle(void); // Get angle in degrees. 0.00 - 359.98
+    float getRadiansAngle(void); // Get angle in radians. 0.00 - 6.28 (0 to 2pi)
 
-    MT6701I2CConfigurationOutputType getConfigurationOutputType(void); // Получить тип конфигурации выходного интерфейса (только для корпуса QFN). MT6701I2_CONFIG_OUTPUT_TYPE_UVW, MT6701I2_CONFIG_OUTPUT_TYPE_A_B_Z
-    void setConfigurationOutputTypeABZ(void); // Установить тип конфигурации выходного интерфейса -A-B-Z (только для корпуса QFN)
-    bool setConfigurationOutputTypeABZVerify(void); // То же самое, но с подтверждением (только для корпуса QFN)
-    void setConfigurationOutputTypeUVW(void); // Установить тип конфигурации выходного интерфейса UVW (только для корпуса QFN)
-    bool setConfigurationOutputTypeUVWVerify(void); // То же самое, но с подтверждением (только для корпуса QFN)
+    MT6701I2CConfigurationOutputType getConfigurationOutputType(void); // Get output interface configuration type (QFN package only). MT6701I2_CONFIG_OUTPUT_TYPE_UVW, MT6701I2_CONFIG_OUTPUT_TYPE_A_B_Z
+    void setConfigurationOutputTypeABZ(void); // Set output interface configuration type to -A-B-Z (QFN package only)
+    bool setConfigurationOutputTypeABZVerify(void); // Same as above, but with confirmation (QFN package only)
+    void setConfigurationOutputTypeUVW(void); // Set output interface configuration type to UVW (QFN package only)
+    bool setConfigurationOutputTypeUVWVerify(void); // Same as above, but with confirmation (QFN package only)
 
-    MT6701I2COutputType getOutputType(void); // Получить тип выходного интерфейса. MT6701I2_OUTPUT_TYPE_ABZ, MT6701I2_OUTPUT_TYPE_UVW
-    void setOutputTypeABZ(void); // Установить тип выходного интерфейса ABZ
-    bool setOutputTypeABZVerify(void); // То же самое, но с подтверждением
-    void setOutputTypeUVW(void); // Установить тип выходного интерфейса UVW
-    bool setOutputTypeUVWVerify(void); // То же самое, но с подтверждением
+    MT6701I2COutputType getOutputType(void); // Get output interface type. MT6701I2_OUTPUT_TYPE_ABZ, MT6701I2_OUTPUT_TYPE_UVW
+    void setOutputTypeABZ(void); // Set output interface type to ABZ
+    bool setOutputTypeABZVerify(void); // Same as above, but with confirmation
+    void setOutputTypeUVW(void); // Set output interface type to UVW
+    bool setOutputTypeUVWVerify(void); // Same as above, but with confirmation
 
-    MT6701I2CDirection getOutputRotationDirection(void); // Получить направление вращения. MT6701I2_DIRECTION_COUNTERCLOCKWISE, MT6701I2_DIRECTION_CLOCKWISE
-    void setOutputRotationDirectionCounterclockwise(void); // Установить направление вращения против часовой
-    bool setOutputRotationDirectionCounterclockwiseVerify(void); // То же самое, но с подтверждением
-    void setOutputRotationDirectionClockwise(void); // Установить направление вращения по часовой
-    bool setOutputRotationDirectionClockwiseVerify(void); // То же самое, но с подтверждением
+    MT6701I2CDirection getOutputRotationDirection(void); // Get direction of rotation. MT6701I2_DIRECTION_COUNTERCLOCKWISE, MT6701I2_DIRECTION_CLOCKWISE
+    void setOutputRotationDirectionCounterclockwise(void); // Set rotation direction counterclockwise
+    bool setOutputRotationDirectionCounterclockwiseVerify(void); // Same as above, but with confirmation
+    void setOutputRotationDirectionClockwise(void); // Set rotation direction clockwise
+    bool setOutputRotationDirectionClockwiseVerify(void); // Same as above, but with confirmation
 
-    byte getOutputResolutionUVW(void); // Получить значение выходного разрешения в режиме UVW. 1 - 16
-    void setOutputResolutionUVW(byte _resolution); // Установить значение выходного разрешения в режиме UVW. 1 - 16
-    bool setOutputResolutionUVWVerify(byte _resolution); // То же самое, но с подтверждением
+    byte getOutputResolutionUVW(void); // Get output resolution in UVW mode. 1 - 16
+    void setOutputResolutionUVW(byte _resolution); // Set output resolution in UVW mode. 1 - 16
+    bool setOutputResolutionUVWVerify(byte _resolution); // Same as above, but with confirmation
 
-    word getOutputResolutionABZ(void); // Получить значение выходного разрешения в режиме ABZ. 1 - 1024
-    void setOutputResolutionABZ(word _resolution); // Установить значение выходного разрешения в режиме ABZ. 1 - 1024
-    bool setOutputResolutionABZVerify(word _resolution); // То же самое, но с подтверждением
+    word getOutputResolutionABZ(void); // Get output resolution in ABZ mode. 1 - 1024
+    void setOutputResolutionABZ(word _resolution); // Set output resolution in ABZ mode. 1 - 1024
+    bool setOutputResolutionABZVerify(word _resolution); // Same as above, but with confirmation
 
-    MT6701I2CZPulseWidth getZPulseWidth(void); // Получить значение ширины импульса на контакте Z в режиме ABZ. MT6701I2_Z_PULSE_WIDTH_1LSB, MT6701I2_Z_PULSE_WIDTH_2LSB,
+    MT6701I2CZPulseWidth getZPulseWidth(void); // Get the pulse width value at pin Z in ABZ mode. MT6701I2_Z_PULSE_WIDTH_1LSB, MT6701I2_Z_PULSE_WIDTH_2LSB,
     // MT6701I2_Z_PULSE_WIDTH_4LSB, MT6701I2_Z_PULSE_WIDTH_8LSB, MT6701I2_Z_PULSE_WIDTH_12LSB, MT6701I2_Z_PULSE_WIDTH_16LSB, MT6701I2_Z_PULSE_WIDTH_180DEG, MT6701I2_Z_PULSE_WIDTH_1LSB_2,
-    void setZPulseWidth1LSB(void); // Установить ширину импульса 1LSB
-    bool setZPulseWidth1LSBVerify(void); // То же самое, но с подтверждением
-    void setZPulseWidth2LSB(void); // Установить ширину импульса 2LSB
-    bool setZPulseWidth2LSBVerify(void); // То же самое, но с подтверждением
-    void setZPulseWidth4LSB(void); // Установить ширрину импульса 4LSB
-    bool setZPulseWidth4LSBVerify(void); // То же самое, но с подтверждением
-    void setZPulseWidth8LSB(void); // Установить ширину импульса 8LSB
-    bool setZPulseWidth8LSBVerify(void); // То же самое, но с подтверждением
-    void setZPulseWidth12LSB(void); // Установить ширину импульса 12LSB
-    bool setZPulseWidth12LSBVerify(void); // То же самое, но с подтверждением
-    void setZPulseWidth16LSB(void); // Установить ширину импульса 16LSB
-    bool setZPulseWidth16LSBVerify(void); // То же самое, но с подтверждением
-    void setZPulseWidth180DEG(void); // Установить ширину импульса 180 градсуов
-    bool setZPulseWidth180DEGVerify(void); // То же самое, но с подтверждением
+    void setZPulseWidth1LSB(void); // Set pulse width 1LSB
+    bool setZPulseWidth1LSBVerify(void); // Same as above, but with confirmation
+    void setZPulseWidth2LSB(void); // Set pulse width 2LSB
+    bool setZPulseWidth2LSBVerify(void); // Same as above, but with confirmation
+    void setZPulseWidth4LSB(void); // Set pulse width 4LSB
+    bool setZPulseWidth4LSBVerify(void); // Same as above, but with confirmation
+    void setZPulseWidth8LSB(void); // Set pulse width 8LSB
+    bool setZPulseWidth8LSBVerify(void); // Same as above, but with confirmation
+    void setZPulseWidth12LSB(void); // Set pulse width 12LSB
+    bool setZPulseWidth12LSBVerify(void); // Same as above, but with confirmation
+    void setZPulseWidth16LSB(void); // Set pulse width 16LSB
+    bool setZPulseWidth16LSBVerify(void); // Same as above, but with confirmation
+    void setZPulseWidth180DEG(void); // Set pulse width to 180 degrees
+    bool setZPulseWidth180DEGVerify(void); // Same as above, but with confirmation
 
-    word getZeroDegreePositionData(void); // Получить значение нулевого положения. Смотреть таблицу в документации стр 28. 0x000 - 0xFFF
-    void setZeroDegreePositionData(word _zero_position_data); // Установить значение нулевого положения. Смотреть таблицу в документации
-    bool setZeroDegreePositionDataVerify(word _zero_position_data); // То же самое, но с подтверждением
+    word getZeroDegreePositionData(void); // Get the zero position value. See the table in the datasheet page 30. 0x000 - 0xFFF
+    void setZeroDegreePositionData(word _zero_position_data); // Set the zero position value. See the table in the documentation
+    bool setZeroDegreePositionDataVerify(word _zero_position_data); // Same as above, but with confirmation
 
     MT6701I2CFrequencyPWM getFrequencyPWM(void); // Получить значение частоты ШИМ. MT6701I2_PWM_FREQUENCY_9944, MT6701I2_PWM_FREQUENCY_4972
-    void setFrequencyPWM9944(void); // Установить частоту ШИМ 994.4Гц
-    bool setFrequencyPWM9944Verify(void); // То же самое, но с подтверждением
-    void setFrequencyPWM4972(void); // Установить частоту ШИМ 497.2Гц
-    bool setFrequencyPWM4972Verify(void); // То же самое, но с подтверждением
+    void setFrequencyPWM9944(void); // Set the PWM frequency to 994.4Hz
+    bool setFrequencyPWM9944Verify(void); // Same as above, but with confirmation
+    void setFrequencyPWM4972(void); // Set the PWM frequency to 497.2Hz
+    bool setFrequencyPWM4972Verify(void); // Same as above, but with confirmation
 
-    MT6701I2CPolarityPWM getPolarityPWM(void); // Получить значение полярности ШИМ. MT6701I2_PWM_POLARITY_HIGH, MT6701I2_PWM_POLARITY_LOW
-    void setPolarityPWMHigh(void); // Установить полярность ШИМ HIGH
-    bool setPolarityPWMHighVerify(void); // То же самое, но с подтверждением
-    void setPolarityPWMLow(void); // Установить полярность ШИМ LOW
-    bool setPolarityPWMLowVerify(void); // То же самое, но с подтверждением
+    MT6701I2CPolarityPWM getPolarityPWM(void); // Get PWM polarity. MT6701I2_PWM_POLARITY_HIGH, MT6701I2_PWM_POLARITY_LOW
+    void setPolarityPWMHigh(void); // Set PWM polarity HIGH
+    bool setPolarityPWMHighVerify(void); // Same as above, but with confirmation
+    void setPolarityPWMLow(void); // Set PWM polarity  LOW
+    bool setPolarityPWMLowVerify(void); // Same as above, but with confirmation
 
-    MT6701I2COutputMode getOutputMode(void); // Получить режима выхода. MT6701I2_OUTPUT_MODE_ANALOG, MT6701I2_OUTPUT_MODE_PWM
-    void setOutputModeAnalog(void); // Установить режим выхода Аналог
-    bool setOutputModeAnalogVerify(void); // То же самое, но с подтверждением
-    void setOutputModePWM(void); // Установить режим выхода ШИМ
-    bool setOutputModePWMVerify(void); // То же самое, но с подтверждением
+    MT6701I2COutputMode getOutputMode(void); // Get output mode. MT6701I2_OUTPUT_MODE_ANALOG, MT6701I2_OUTPUT_MODE_PWM
+    void setOutputModeAnalog(void); // Set analog output mode
+    bool setOutputModeAnalogVerify(void); // Same as above, but with confirmation
+    void setOutputModePWM(void); // Set PWM output mode
+    bool setOutputModePWMVerify(void); // Same as above, but with confirmation
 };
