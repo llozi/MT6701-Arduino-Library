@@ -225,38 +225,41 @@ void MT6701I2C::setConfigurationOutputTypeABZ(void) {
 }
 
 /* 
- * @brief: установить тип конфигурации выходного интерфейса -A-B-Z с проверкой
- * @note: только для корпуса QFN
+ * @brief: set output interface configuration type to -A-B-Z with check
+ * @note: QFN package only
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setConfigurationOutputTypeABZVerify(void) {
   setConfigurationOutputTypeABZ();
   return getConfigurationOutputType() ? MT6701I2C_DEFAULT_REPORT_ERROR : MT6701I2C_DEFAULT_REPORT_OK;
 }
+
 /* 
- * @brief: установить тип конфигурации выходного интерфейса UVW
- * @note: только для корпуса QFN
+ * @brief: Set output interface configuration type to UVW
+ * @note: QFN package only
  */
 void MT6701I2C::setConfigurationOutputTypeUVW(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_UVW_MUX_REG);
   bkup |= 1 << MT6701_I2C_EEPROM_UVW_MUX_BIT;
   MT_WriteOneByte(MT6701_I2C_EEPROM_UVW_MUX_REG, bkup);
 }
+
 /* 
- * @brief: установить тип конфигурации выходного интерфейса UVW с проверкой
- * @note: только для корпуса QFN
+ * @brief: set output interface configuration type UVW with check
+ * @note: QFN package only
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setConfigurationOutputTypeUVWVerify(void) {
   setConfigurationOutputTypeUVW();
   return getConfigurationOutputType() ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /* 
- * @brief: получить значение типа выходного интерфейса
+ * @brief: get the output interface type
  * @return:
  *  MT6701I2_OUTPUT_TYPE_ABZ
  *  MT6701I2_OUTPUT_TYPE_UVW
@@ -264,44 +267,49 @@ bool MT6701I2C::setConfigurationOutputTypeUVWVerify(void) {
 MT6701I2COutputType MT6701I2C::getOutputType(void) {
   return (MT6701I2COutputType)((MT_RequestSingleRegister(MT6701_I2C_EEPROM_ABZ_MUX_REG) >> MT6701_I2C_EEPROM_ABZ_MUX_BIT) & 0x01);
 }
+
 /* 
- * @brief: установить тип выходного интерфейса ABZ
+ * @brief: set output interface type ABZ
  */
 void MT6701I2C::setOutputTypeABZ(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_ABZ_MUX_REG);
   bkup &= ~(1 << MT6701_I2C_EEPROM_ABZ_MUX_BIT);
   MT_WriteOneByte(MT6701_I2C_EEPROM_ABZ_MUX_REG, bkup);
 }
+
 /* 
- * @brief: установить тип выходного интерфейса ABZ с проверкой
+ * @brief: set output interface type ABZ with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setOutputTypeABZVerify(void) {
   setOutputTypeABZ();
   return getOutputType() ? MT6701I2C_DEFAULT_REPORT_ERROR : MT6701I2C_DEFAULT_REPORT_OK;
 }
+
 /* 
- * @brief: установить тип выходного интерфейса UVW
+ * @brief: set the output interface type to UVW
  */
 void MT6701I2C::setOutputTypeUVW(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_ABZ_MUX_REG);
   bkup |= 1 << MT6701_I2C_EEPROM_ABZ_MUX_BIT;
   MT_WriteOneByte(MT6701_I2C_EEPROM_ABZ_MUX_REG, bkup);
 }
+
 /* 
- * @brief: установить тип выходного интерфейса UVW с проверкой
+ * @brief: set output interface type UVW with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setOutputTypeUVWVerify(void) {
   setOutputTypeUVW();
   return getOutputType() ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /* 
- * @brief: получить значение положительного направления вращения
+ * @brief: get the value of the positive direction of rotation
  * @return:
  *  MT6701I2_DIRECTION_COUNTERCLOCKWISE
  *  MT6701I2_DIRECTION_CLOCKWISE
@@ -309,83 +317,91 @@ bool MT6701I2C::setOutputTypeUVWVerify(void) {
 MT6701I2CDirection MT6701I2C::getOutputRotationDirection(void) {
   return (MT6701I2CDirection)((MT_RequestSingleRegister(MT6701_I2C_EEPROM_DIR_REG) >> MT6701_I2C_EEPROM_DIR_BIT) & 0x01);
 }
+
 /* 
- * @brief: установить положительное направление вращения против часовой стрелки
+ * @brief: set positive direction of rotation counterclockwise
  */
 void MT6701I2C::setOutputRotationDirectionCounterclockwise(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_DIR_REG);
   bkup &= ~(1 << MT6701_I2C_EEPROM_DIR_BIT);
   MT_WriteOneByte(MT6701_I2C_EEPROM_DIR_REG, bkup);
 }
+
 /* 
- * @brief: установить положительное направление вращения против часовой стрелки с проверкой
+ * @brief: set the positive direction of rotation counterclockwise and check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setOutputRotationDirectionCounterclockwiseVerify(void) {
   setOutputRotationDirectionCounterclockwise();
   return getOutputRotationDirection() ? MT6701I2C_DEFAULT_REPORT_ERROR : MT6701I2C_DEFAULT_REPORT_OK;
 }
 /* 
- * @brief: установить положительное направление вращения по часовой стрелке
+ * @brief: set positive direction of rotation clockwise
  */
 void MT6701I2C::setOutputRotationDirectionClockwise(void) {
   uint8_t bkup =MT_RequestSingleRegister(MT6701_I2C_EEPROM_DIR_REG);
   bkup |= 1 << MT6701_I2C_EEPROM_DIR_BIT;
   MT_WriteOneByte(MT6701_I2C_EEPROM_DIR_REG, bkup);
 }
+
 /* 
- * @brief: установить положительное направление вращения по часовой стрелке с проверкой
+ * @brief: set the positive direction of rotation clockwise and check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setOutputRotationDirectionClockwiseVerify(void) {
   setOutputRotationDirectionClockwise();
   return getOutputRotationDirection() ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /* 
- * @brief: получить значение выходного разрешения в режиме UVW
+ * @brief: пget output resolution value in UVW mode
  * @return:
  *  1 - 16
  */
 byte MT6701I2C::getOutputResolutionUVW(void) {
-  return ((MT_RequestSingleRegister(MT6701_I2C_EEPROM_UVW_RES_REG) >> MT6701_I2C_EEPROM_UVW_MUX_BIT_S) & 0x0F) + 1; // 0x0F = 0b00001111, +1 для смещения в диапазон 1-16
+  return ((MT_RequestSingleRegister(MT6701_I2C_EEPROM_UVW_RES_REG) >> MT6701_I2C_EEPROM_UVW_MUX_BIT_S) & 0x0F) + 1; // 0x0F = 0b00001111, +1 to shift into range 1-16
 }
+
 /* 
- * @brief: установить значение выходного разрешения в режиме UVW
+ * @brief: set output resolution value in UVW mode
  * @param _resolution:
  *  1 - 16
  */
 void MT6701I2C::setOutputResolutionUVW(byte _resolution) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_UVW_RES_REG);
-  bkup |= (_resolution - 1) << MT6701_I2C_EEPROM_UVW_MUX_BIT_S; // -1 для смещения в диапазон 0-15
+  bkup |= (_resolution - 1) << MT6701_I2C_EEPROM_UVW_MUX_BIT_S; // -1 shifts into range 0-15
   MT_WriteOneByte(MT6701_I2C_EEPROM_UVW_RES_REG, bkup);
 }
+
 /* 
- * @brief: установить значение выходного разрешения в режиме UVW с проверкой
+ * @brief: set output resolution value in UVW mode with check
  * @param _resolution:
  *  1 - 16
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setOutputResolutionUVWVerify(byte _resolution) {
   setOutputResolutionUVW(_resolution);
   return getOutputResolutionUVW() == _resolution ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /* 
- * @brief: получить значение выходного разрешения в режиме ABZ
+ * @brief: get output resolution value in ABZ mode
  * @return:
  *  1 - 1024
  */
 word MT6701I2C::getOutputResolutionABZ(void) {
   uint8_t reg_h = MT_RequestSingleRegister(MT6701_I2C_EEPROM_ABZ_RES_REG_H) & 0x03; // 0x03 = 0b00000011
-  return (word)((reg_h << 8) | MT_RequestSingleRegister(MT6701_I2C_EEPROM_ABZ_RES_REG_L)) + 1; // +1 для смещения в диапазон 1-1024
+  return (word)((reg_h << 8) | MT_RequestSingleRegister(MT6701_I2C_EEPROM_ABZ_RES_REG_L)) + 1; // +1 to shift into range 1-1024
 }
+
 /* 
- * @brief: установить значение выходного разрешения в режиме ABZ
+ * @brief: set the output resolution value in ABZ mode
  * @param _resolution:
  *  1 - 1024
  */
@@ -396,13 +412,14 @@ void MT6701I2C::setOutputResolutionABZ(word _resolution) {
   MT_WriteOneByte(MT6701_I2C_EEPROM_ABZ_RES_REG_H, reg_h);
   MT_WriteOneByte(MT6701_I2C_EEPROM_ABZ_RES_REG_L, reg_l);
 }
+
 /* 
- * @brief: установить значение выходного разрешения в режиме ABZ с проверкой
+ * @brief: set the output resolution value in ABZ mode with check
  * @param _resolution:
  *  1 - 1024
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setOutputResolutionABZVerify(word _resolution) {
   setOutputResolutionABZ(_resolution);
@@ -411,7 +428,7 @@ bool MT6701I2C::setOutputResolutionABZVerify(word _resolution) {
 
 
 /* 
- * @brief: получить значение ширины импульса Z в режиме ABZ
+ * @brief: get pulse width Z value in ABZ mode
  * @return:
  *  MT6701I2_Z_PULSE_WIDTH_1LSB
  *  MT6701I2_Z_PULSE_WIDTH_2LSB
@@ -425,135 +442,150 @@ bool MT6701I2C::setOutputResolutionABZVerify(word _resolution) {
 MT6701I2CZPulseWidth MT6701I2C::getZPulseWidth(void) {
   return (MT6701I2CZPulseWidth)((MT_RequestSingleRegister(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG) >> MT6701_I2C_EEPROM_Z_PULSE_WIDTH_BIT_S) & 0x07); // 0x07 = 0b00000111
 }
+
 /*
- * @brief: установить ширину импульса Z 1LSB
+ * @brief: set pulse width Z 1LSB
  */
 void MT6701I2C::setZPulseWidth1LSB(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG);
   bkup |= MT6701I2_Z_PULSE_WIDTH_1LSB << MT6701_I2C_EEPROM_Z_PULSE_WIDTH_BIT_S;
   MT_WriteOneByte(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG, bkup);
 }
+
 /*
- * @brief: установить ширину импульса Z 1LSB с проверкой
+ * @brief: set pulse width Z 1LSB with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setZPulseWidth1LSBVerify(void) {
   setZPulseWidth1LSB();
   return getZPulseWidth() == MT6701I2_Z_PULSE_WIDTH_1LSB ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /*
- * @brief: установить ширину импульса Z 2LSB
+ * @brief: set pulse width Z 2LSB
  */
 void MT6701I2C::setZPulseWidth2LSB(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG);
   bkup |= MT6701I2_Z_PULSE_WIDTH_2LSB << MT6701_I2C_EEPROM_Z_PULSE_WIDTH_BIT_S;
   MT_WriteOneByte(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG, bkup);
 }
+
 /*
- * @brief: установить ширину импульса Z 2LSB с проверкой
+ * @brief: set pulse width Z 2LSB with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setZPulseWidth2LSBVerify(void) {
   setZPulseWidth2LSB();
   return getZPulseWidth() == MT6701I2_Z_PULSE_WIDTH_2LSB ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /*
- * @brief: установить ширину импульса Z 4LSB
+ * @brief: set pulse width Z LSB
  */
 void MT6701I2C::setZPulseWidth4LSB(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG);
   bkup |= MT6701I2_Z_PULSE_WIDTH_4LSB << MT6701_I2C_EEPROM_Z_PULSE_WIDTH_BIT_S;
   MT_WriteOneByte(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG, bkup);
 }
+
 /*
- * @brief: установить ширину импульса Z 4LSB с проверкой
+ * @brief: set pulse width Z 4LSB with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setZPulseWidth4LSBVerify(void) {
   setZPulseWidth1LSB();
   return getZPulseWidth() == MT6701I2_Z_PULSE_WIDTH_4LSB ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /*
- * @brief: установить ширину импульса Z 8LSB
+ * @brief: set pulse width Z 8LSB
  */
 void MT6701I2C::setZPulseWidth8LSB(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG);
   bkup |= MT6701I2_Z_PULSE_WIDTH_8LSB << MT6701_I2C_EEPROM_Z_PULSE_WIDTH_BIT_S;
   MT_WriteOneByte(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG, bkup);
 }
+
 /*
- * @brief: установить ширину импульса Z 8LSB с проверкой
+ * @brief: set pulse width Z 8LSB with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setZPulseWidth8LSBVerify(void) {
   setZPulseWidth8LSB();
   return getZPulseWidth() == MT6701I2_Z_PULSE_WIDTH_8LSB ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /*
- * @brief: установить ширину импульса Z 12LSB
+ * @brief: set pulse width Z 12LSB
  */
 void MT6701I2C::setZPulseWidth12LSB(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG);
   bkup |= MT6701I2_Z_PULSE_WIDTH_12LSB << MT6701_I2C_EEPROM_Z_PULSE_WIDTH_BIT_S;
   MT_WriteOneByte(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG, bkup);
 }
+
 /*
- * @brief: установить ширину импульса Z 12LSB с проверкой
+ * @brief: set pulse width Z 12LSB with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setZPulseWidth12LSBVerify(void) {
   setZPulseWidth12LSB();
   return getZPulseWidth() == MT6701I2_Z_PULSE_WIDTH_12LSB ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /*
- * @brief: установить ширину импульса Z 16LSB
+ * @brief: set pulse width Z 16LSB
  */
 void MT6701I2C::setZPulseWidth16LSB(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG);
   bkup |= MT6701I2_Z_PULSE_WIDTH_16LSB << MT6701_I2C_EEPROM_Z_PULSE_WIDTH_BIT_S;
   MT_WriteOneByte(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG, bkup);
 }
+
 /*
- * @brief: установить ширину импульса Z 16LSB с проверкой
+ * @brief: set pulse width Z 16LSB with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setZPulseWidth16LSBVerify(void) {
   setZPulseWidth16LSB();
   return getZPulseWidth() == MT6701I2_Z_PULSE_WIDTH_16LSB ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /*
- * @brief: установить ширину импульса Z 180 градусов
+ * @brief: set pulse width Z 180 degrees
  */
 void MT6701I2C::setZPulseWidth180DEG(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG);
   bkup |= MT6701I2_Z_PULSE_WIDTH_180DEG << MT6701_I2C_EEPROM_Z_PULSE_WIDTH_BIT_S;
   MT_WriteOneByte(MT6701_I2C_EEPROM_Z_PULSE_WIDTH_REG, bkup);
 }
+
 /*
- * @brief: установить ширину импульса Z 180 градусов с проверкой
+ * @brief: set pulse width Z 180 degrees with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setZPulseWidth180DEGVerify(void) {
   setZPulseWidth180DEG();
   return getZPulseWidth() == MT6701I2_Z_PULSE_WIDTH_180DEG ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /* 
- * @brief: получить значение нулевого положения
- * @note: СМОТРЕТЬ ТАБЛИЦУ В ДОКУМЕНТАЦИИ
+ * @brief: get the value of the null position
+ * @note: SEE TABLE IN DOCUMENTATION
  * @return:
  *  0 - 4095
  */
@@ -561,9 +593,10 @@ word MT6701I2C::getZeroDegreePositionData(void) {
   uint8_t reg_h = MT_RequestSingleRegister(MT6701_I2C_EEPROM_ZERO_REG_H) & 0x0F; // 0x0F = 0b00001111
   return (word)((reg_h << 8) | MT_RequestSingleRegister(MT6701_I2C_EEPROM_ZERO_REG_L));
 }
+
 /* 
- * @brief: установить значение нулевого положения
- * @note: СМОТРЕТЬ ТАБЛИЦУ В ДОКУМЕНТАЦИИ
+ * @brief: set the null position value
+ * @note: SEE TABLE IN DOCUMENTATION
  * @param _zero_position_data:
  *  0 - 4095
  */
@@ -574,21 +607,23 @@ void MT6701I2C::setZeroDegreePositionData(word _zero_position_data) {
   MT_WriteOneByte(MT6701_I2C_EEPROM_ZERO_REG_H, bkup);
   MT_WriteOneByte(MT6701_I2C_EEPROM_ZERO_REG_L, reg_l);
 }
+
 /* 
- * @brief: установить значение нулевого положения с проверкой
- * @note: СМОТРЕТЬ ТАБЛИЦУ В ДОКУМЕНТАЦИИ
+ * @brief: set null position value with check
+ * @note: SEE TABLE IN DOCUMENTATION
  * @param _zero_position_data:
  *  0 - 4095
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setZeroDegreePositionDataVerify(word _zero_position_data) {
   setZeroDegreePositionData(_zero_position_data);
   return getZeroDegreePositionData() == _zero_position_data ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /* 
- * @brief: получить значение частоты ШИМ
+ * @brief: get the PWM frequency value
  * @return:
  *  MT6701I2_PWM_FREQUENCY_9944
  *  MT6701I2_PWM_FREQUENCY_4972
@@ -596,44 +631,49 @@ bool MT6701I2C::setZeroDegreePositionDataVerify(word _zero_position_data) {
 MT6701I2CFrequencyPWM MT6701I2C::getFrequencyPWM(void) {
   return (MT6701I2CFrequencyPWM)((MT_RequestSingleRegister(MT6701_I2C_EEPROM_PWM_FREQ_REG) >> MT6701_I2C_EEPROM_PWM_FREQ_BIT) & 0x01);
 }
+
 /* 
- * @brief: установить значение частоты ШИМ 994.4Гц
+ * @brief: set the PWM frequency value to 994.4Hz
  */
 void MT6701I2C::setFrequencyPWM9944(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_PWM_FREQ_REG);
   bkup &= ~(1 << MT6701_I2C_EEPROM_PWM_FREQ_BIT);
   MT_WriteOneByte(MT6701_I2C_EEPROM_PWM_FREQ_REG, bkup);
 }
+
 /* 
- * @brief: установить значение частоты ШИМ 994.4Гц с проверкой
+ * @brief: set the PWM frequency value to 994.4Hz with verification
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setFrequencyPWM9944Verify(void) {
   setFrequencyPWM9944();
   return getFrequencyPWM() == MT6701I2_PWM_FREQUENCY_9944 ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /* 
- * @brief: установить значение частоты ШИМ 497.2Гц
+ * @brief: set the PWM frequency value to 497.2Hz
  */
 void MT6701I2C::setFrequencyPWM4972(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_PWM_FREQ_REG);
   bkup |= 1 << MT6701_I2C_EEPROM_PWM_FREQ_BIT;
   MT_WriteOneByte(MT6701_I2C_EEPROM_PWM_FREQ_REG, bkup);
 }
+
 /* 
- * @brief: установить значение частоты ШИМ 497.2Гц с проверкой
+ * @brief: set the PWM frequency value to 497.2Hz with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setFrequencyPWM4972Verify(void) {
   setFrequencyPWM4972();
   return getFrequencyPWM() == MT6701I2_PWM_FREQUENCY_4972 ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /* 
- * @brief: получить значение полярности ШИМ
+ * @brief: get PWM polarity value
  * @return:
  *  MT6701I2_PWM_POLARITY_HIGH
  *  MT6701I2_PWM_POLARITY_LOW
@@ -641,37 +681,41 @@ bool MT6701I2C::setFrequencyPWM4972Verify(void) {
 MT6701I2CPolarityPWM MT6701I2C::getPolarityPWM(void) {
   return (MT6701I2CPolarityPWM)((MT_RequestSingleRegister(MT6701_I2C_EEPROM_PWM_POL_REG) >> MT6701_I2C_EEPROM_PWM_POL_BIT) & 0x01);
 }
+
 /* 
- * @brief: установить значение полярности ШИМ HIGH
+ * @brief: set the PWM polarity value to HIGH with check
  */
 void MT6701I2C::setPolarityPWMHigh(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_PWM_POL_REG);
   bkup &= ~(1 << MT6701_I2C_EEPROM_PWM_POL_BIT);
   MT_WriteOneByte(MT6701_I2C_EEPROM_PWM_POL_REG, bkup);
 }
+
 /* 
- * @brief: установить значение полярности ШИМ HIGH с проверкой
+ * @brief: set the PWM polarity value to HIGH with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setPolarityPWMHighVerify(void) {
   setPolarityPWMHigh();
   return getPolarityPWM() == MT6701I2_PWM_POLARITY_HIGH ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /* 
- * @brief: установить значение полярности ШИМ LOW
+ * @brief: set the PWM polarity value to LOW
  */
 void MT6701I2C::setPolarityPWMLow(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_PWM_POL_REG);
   bkup |= 1 << MT6701_I2C_EEPROM_PWM_POL_BIT;
   MT_WriteOneByte(MT6701_I2C_EEPROM_PWM_POL_REG, bkup);
 }
+
 /* 
- * @brief: установить значение полярности ШИМ LOW с проверкой
+ * @brief: set the PWM polarity value to LOW with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setPolarityPWMLowVerify(void) {
   setPolarityPWMLow();
@@ -679,7 +723,7 @@ bool MT6701I2C::setPolarityPWMLowVerify(void) {
 }
 
 /* 
- * @brief: получить режима выхода
+ * @brief: get output mode
  * @return:
  *  MT6701I2_OUTPUT_MODE_ANALOG
  *  MT6701I2_OUTPUT_MODE_PWM
@@ -687,39 +731,44 @@ bool MT6701I2C::setPolarityPWMLowVerify(void) {
 MT6701I2COutputMode MT6701I2C::getOutputMode(void) {
   return (MT6701I2COutputMode)((MT_RequestSingleRegister(MT6701_I2C_EEPROM_OUT_MODE_REG) >> MT6701_I2C_EEPROM_OUT_MODE_BIT) & 0x01);
 }
+
 /* 
- * @brief: установить режим выхода Аналог
+ * @brief: set output mode analog
  */
 void MT6701I2C::setOutputModeAnalog(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_OUT_MODE_REG);
   bkup &= ~(1 << MT6701_I2C_EEPROM_OUT_MODE_BIT);
   MT_WriteOneByte(MT6701_I2C_EEPROM_OUT_MODE_REG, bkup);
 }
+
 /* 
- * @brief: установить режим выхода Аналог с проверкой
+ * @brief: set output mode analog with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setOutputModeAnalogVerify(void) {
   setOutputModeAnalog();
   return getOutputMode() == MT6701I2_OUTPUT_MODE_ANALOG ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
 /* 
- * @brief: установить режим выхода ШИМ
+ * @brief: set PWM output mode
  */
 void MT6701I2C::setOutputModePWM(void) {
   uint8_t bkup = MT_RequestSingleRegister(MT6701_I2C_EEPROM_OUT_MODE_REG);
   bkup |= 1 << MT6701_I2C_EEPROM_OUT_MODE_BIT;
   MT_WriteOneByte(MT6701_I2C_EEPROM_OUT_MODE_REG, bkup);
 }
+
 /* 
- * @brief: установить режим выхода ШИМ с проверкой
+ * @brief: set PWM output mode with check
  * @return:
- *  MT6701I2C_DEFAULT_REPORT_ERROR - не установлено
- *  MT6701I2C_DEFAULT_REPORT_OK - установлено
+ *  MT6701I2C_DEFAULT_REPORT_ERROR - failure
+ *  MT6701I2C_DEFAULT_REPORT_OK - success
  */
 bool MT6701I2C::setOutputModePWMVerify(void) {
   setOutputModePWM();
   return getOutputMode() == MT6701I2_OUTPUT_MODE_PWM ? MT6701I2C_DEFAULT_REPORT_OK : MT6701I2C_DEFAULT_REPORT_ERROR;
 }
+
