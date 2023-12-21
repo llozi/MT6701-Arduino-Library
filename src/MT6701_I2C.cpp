@@ -41,9 +41,9 @@ uint8_t MT6701I2C::MT_RequestSingleRegister(uint8_t _reg_addr) {
   // End connection
   _wire_->endTransmission();
   
-  // Запросить байт данных по адресу
+  // Request a byte of data at MT6701 address
   _wire_->requestFrom(MT6701_I2C_ADDRESS, (uint8_t)1);
-  // Прочитать данные из буфера
+  // Read data from buffer
   if (_wire_->available() >= 1 ) {
     single_byte = _wire_->read();
   }
@@ -59,7 +59,7 @@ uint8_t MT6701I2C::MT_RequestSingleRegister(uint8_t _reg_addr) {
  * @param _payload: 1 byte payload
  */
 void MT6701I2C::MT_WriteOneByte(uint8_t _reg_addr, uint8_t _payload) {
-  // Start transfer to address для прередачи байта данных в регистр
+  // Start transfer to MT6701 address
   _wire_->beginTransmission(MT6701_I2C_ADDRESS);
   _wire_->write(_reg_addr);
   _wire_->write(_payload);
@@ -132,7 +132,7 @@ void MT6701I2C::saveNewValues(void) {
 }
 
 /*
- * @brief: find out if the sensor is connected to the I2C line
+ * @brief: find out if the sensor is connected to the I2C bus
  * @note: the standard search algorithm for devices on the I2C bus is used
  * @return:
  * MT6701I2C_DEFAULT_REPORT_ERROR - not connected
